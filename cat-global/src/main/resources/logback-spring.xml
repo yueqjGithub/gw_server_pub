@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration scan="false" scanPeriod="50 seconds" debug="false">
+
+    <property name="maxHistory" value="960"/>
+    <springProperty scope="context" name="website" source="properties.logback.path"/>
+
+    <!-- Console Appender 控制台输出日志 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{MM-dd HH:mm:ss:SSS} [TRACE_ID:%X{TRACE_ID}] %5p [%t] %replace(%caller{1}){'\t|Caller.{1}0|\r\n', ''} - %m%n
+            </pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+
+    <!-- 原始请求的存储位置 -->
+    <appender name="REQUEST" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder>
+            <pattern>%d{MM-dd HH:mm:ss.SSS} [TRACE_ID:%X{TRACE_ID}] [%thread] - [%-5level] [%logger{50}:%line] - %msg%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${website}/website-admin.log%d{.yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${maxHistory}</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+
+    <root level="info">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="REQUEST"/>
+    </root>
+
+    <logger name="org.apache.pulsar.client.impl" level="WARN" />
+    <logger name="io.lettuce.core.protocol" level="WARN" />
+</configuration>
